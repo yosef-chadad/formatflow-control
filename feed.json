@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "revision": 1,
+  "policy": {
+    "enabled": true,
+    "message": "התוכנה מושבתת זמנית מטעם המפרסם. אפשר לבדוק שוב בהמשך."
+  },
+  "appearance": {
+    "title": "Welcome to Format Switcher",
+    "subtitle": "בחר-המר-הורד",
+    "accent": "#B2A0FF"
+  },
+  "ads": [],
+  "latest": {
+    "version": "2.2.0",
+    "url": "",
+    "sha256": "",
+    "installMode": "onNextLaunch"
+  }
+}
