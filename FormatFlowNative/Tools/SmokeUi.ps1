@@ -1,3 +1,4 @@
+# Runs in a clean Windows STA process before publishing an update.
 param([Parameter(Mandatory=$true)][string]$Exe)
 $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName PresentationFramework, PresentationCore, WindowsBase, System.Xaml
