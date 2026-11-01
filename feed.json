@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "revision": 10,
+  "revision": 11,
   "policy": {
     "enabled": true,
     "message": "התוכנה מושבתת זמנית מטעם המפרסם. אפשר לבדוק שוב בהמשך."
@@ -18,9 +18,9 @@
     }
   ],
   "latest": {
-    "version": "2.4.0",
-    "url": "https://github.com/yosef-chadad/formatflow-control/releases/download/v2.4.0/FormatFlow.exe",
-    "sha256": "a891f4e29ccd3e7bd17dd5bb8dc2b837a03656e71cb9c11aa67024e64795807e",
+    "version": "2.4.1",
+    "url": "https://github.com/yosef-chadad/formatflow-control/releases/download/v2.4.1/FormatFlow.exe",
+    "sha256": "1547d8ce456a9518a43207a63a9dcefd0fddddea13e3d15b7e205c25e048190f",
     "installMode": "onNextLaunch"
   }
 }
