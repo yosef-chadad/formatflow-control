@@ -5,10 +5,10 @@ Current source version: **2.4.0** (.NET Framework 4.8, Windows x64).
 
 - [Application source](FormatFlowNative/)
 - [Downloads](../../releases)
-- [Advertisement manager](https://yosef-chadad.github.io/formatflow-control/)
+- [אתר ניהול הפרסומות — כניסה לבעלים](https://formatflow-control.onrender.com/)
 
-The public advertisement manager requires an authorized GitHub credential to publish changes.
-No write credential is included in the site, application or public configuration.
+The owner dashboard requires an authorized GitHub sign-in. Its service credentials are configured separately in Render.
+The repository and its published configuration are public.
 Personal administration instructions are distributed separately to the owner.
 
 Binary resources are restored from the included icon encoding, original sound generator and
