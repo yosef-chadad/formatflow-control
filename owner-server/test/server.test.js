@@ -70,6 +70,8 @@ test('real HTTP server protects admin and writes; encrypted login survives reque
     assert(!loginHtml.includes('synthetic-server-only-credential'));
     const script = loginHtml.match(/<script>([\s\S]*?)<\/script>/)[1];
     assert(login.headers.get('content-security-policy').includes(createHash('sha256').update(script).digest('base64')));
+    assert.match(login.headers.get('content-security-policy'), /form-action[^;]*https:\/\/github\.com/);
+    assert.match(login.headers.get('content-security-policy'), /form-action[^;]*https:\/\/accounts\.google\.com/);
     const jwt = await encode({ token: { sub: OWNER_GITHUB_ID, ownerId: OWNER_GITHUB_ID, provider: 'github', name: 'Owner' }, secret: env.AUTH_SECRET, salt: 'authjs.session-token', maxAge: 2592000 });
     const cookie = 'authjs.session-token=' + jwt;
     const ownerPage = await request('/', { headers: { Cookie: cookie } }); assert.equal(ownerPage.status, 200);

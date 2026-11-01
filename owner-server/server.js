@@ -64,7 +64,7 @@ export function createApp(env = process.env, services = {}) {
   app.use(helmet({ contentSecurityPolicy: { directives: {
     defaultSrc: ["'self'"], scriptSrc: ["'self'", ...scriptsOf(admin), ...scriptsOf(login)],
     styleSrc: ["'self'", "'unsafe-inline'"], imgSrc: ["'self'", 'https:', 'blob:', 'data:'],
-    connectSrc: ["'self'"], formAction: ["'self'"], frameAncestors: ["'none'"], objectSrc: ["'none'"], baseUri: ["'none'"]
+    connectSrc: ["'self'"], formAction: ["'self'", "https://github.com", "https://accounts.google.com"], frameAncestors: ["'none'"], objectSrc: ["'none'"], baseUri: ["'none'"]
   } }, referrerPolicy: { policy: 'no-referrer' } }));
   app.use((req, res, next) => { res.set('Cache-Control', 'no-store'); next(); });
   app.get('/health', (req, res) => res.json({ ok: true }));
