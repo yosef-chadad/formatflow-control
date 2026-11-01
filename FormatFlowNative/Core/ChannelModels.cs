@@ -17,6 +17,7 @@ namespace FormatFlow {
   public static ChannelFeed Normalize(ChannelFeed feed){
    if(feed==null||feed.schema!=1)throw new InvalidDataException("Unknown publisher channel schema.");
    feed.policy=feed.policy??new Availability();feed.policy.message=Limit(feed.policy.message,500);
+   // Two slots keep the conversion queue next to the file picker.
    var ads=new List<Promotion>();var slots=new HashSet<string>();
    foreach(var ad in (feed.ads??new List<Promotion>()).Take(12).OrderBy(ad=>ad!=null&&ad.placement=="bottom"?1:0)){
     if(ad==null)continue;ad.title=Limit(ad.title,100);ad.text=Limit(ad.text,700);
