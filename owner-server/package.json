@@ -1,0 +1,18 @@
+{
+  "name": "formatflow-owner-login",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@auth/express": "0.12.3",
+    "express": "4.22.3",
+    "helmet": "8.1.0"
+  }
+}
