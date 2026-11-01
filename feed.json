@@ -2,7 +2,7 @@
   "schema": 1,
   "revision": 1,
   "policy": {
-    "enabled": false,
+    "enabled": true,
     "message": "התוכנה מושבתת זמנית מטעם המפרסם. אפשר לבדוק שוב בהמשך."
   },
   "appearance": {
