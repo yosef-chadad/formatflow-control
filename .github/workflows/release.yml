@@ -1,0 +1,37 @@
+name: Build and release FormatFlow
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'FormatFlowNative/**'
+      - 'build-assets.py'
+permissions:
+  contents: write
+concurrency:
+  group: formatflow-release
+  cancel-in-progress: false
+jobs:
+  release:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore embedded resources
+        run: python build-assets.py
+      - name: Build Windows executable
+        run: dotnet build FormatFlowNative/FormatFlow.csproj -c Release --verbosity minimal
+      - name: Validate Windows UI construction
+        shell: pwsh
+        run: powershell.exe -NoProfile -STA -File FormatFlowNative/Tools/SmokeUi.ps1 -Exe FormatFlowNative/bin/Release/net48/FormatFlow.exe
+      - name: Verify file version
+        shell: pwsh
+        run: |
+          [xml]$project = Get-Content FormatFlowNative/FormatFlow.csproj
+          $expected = $project.Project.PropertyGroup.Version
+          $actual = (Get-Item FormatFlowNative/bin/Release/net48/FormatFlow.exe).VersionInfo.FileVersion
+          if ([version]$actual -ne [version]$expected) { throw 'File version mismatch' }
+      - name: Publish verified release and automatic update
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python FormatFlowNative/Tools/publish-release.py
