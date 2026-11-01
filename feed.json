@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "revision": 6,
+  "revision": 7,
   "policy": {
     "enabled": true,
     "message": "התוכנה מושבתת זמנית מטעם המפרסם. אפשר לבדוק שוב בהמשך."
@@ -11,11 +11,6 @@
     "accent": "#B2A0FF"
   },
   "ads": [
-    {
-      "image": "https://raw.githubusercontent.com/yosef-chadad/formatflow-control/main/FormatFlow%20luminous%20Hebrew%20banner.png",
-      "link": "",
-      "placement": "top"
-    },
     {
       "image": "https://raw.githubusercontent.com/yosef-chadad/formatflow-control/main/FormatFlow%20luminous%20Hebrew%20banner.png",
       "link": "https://www.kore.co.il/",
