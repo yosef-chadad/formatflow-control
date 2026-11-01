@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "revision": 1,
+  "revision": 2,
   "policy": {
     "enabled": true,
     "message": "התוכנה מושבתת זמנית מטעם המפרסם. אפשר לבדוק שוב בהמשך."
@@ -10,7 +10,13 @@
     "subtitle": "בחר-המר-הורד",
     "accent": "#B2A0FF"
   },
-  "ads": [],
+  "ads": [
+    {
+      "image": "https://raw.githubusercontent.com/yosef-chadad/formatflow-control/main/FormatFlow%20luminous%20Hebrew%20banner.png",
+      "link": "https://www.kore.co.il/",
+      "placement": "belowSearch"
+    }
+  ],
   "latest": {
     "version": "2.2.0",
     "url": "",
