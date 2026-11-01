@@ -7,7 +7,7 @@ class Element {
  constructor(){this.value='';this.textContent='';this.dataset={};this.options=[];this.hidden=false;this.disabled=false;this.classList={toggle(){}};this.events={};}
  addEventListener(name,fn){this.events[name]=fn;}setAttribute(k,v){this[k]=v;}removeAttribute(k){delete this[k];}replaceChildren(...items){this.options=items;}add(item){this.options.push(item);}showModal(){this.open=true;}close(){this.open=false;}focus(){}click(){}
 }
-const elements={},slots=['top','belowSearch','bottom'].map(slot=>{const b=new Element();b.dataset.slot=slot;return b;});
+const elements={},slots=['top','belowSearch'].map(slot=>{const b=new Element();b.dataset.slot=slot;return b;});
 const fixture={schema:1,revision:8,policy:{enabled:false,message:'מושהה'},appearance:{title:'Welcome',subtitle:'שלום'},ads:[{image:'https://example.com/top.png',link:'',placement:'top'}],latest:{version:'4.0.0',url:'https://example.com/application.exe',sha256:'a'.repeat(64),installMode:'ask'},future:{untouched:true}};
 let remote=structuredClone(fixture),remoteSha='sha-8',calls=[],rejectPut=false;
 const context={console,URL,TextEncoder,TextDecoder,Uint8Array,DataView,Blob,AbortController,crypto:crypto.webcrypto,setTimeout,clearTimeout,Option:function(text,value){this.text=text;this.value=value;},btoa:x=>Buffer.from(x,'binary').toString('base64'),atob:x=>Buffer.from(x,'base64').toString('binary'),confirm:()=>true,document:{getElementById:id=>elements[id]||(elements[id]=new Element()),querySelectorAll:()=>slots},window:{addEventListener(){}},fetch:async(url,options)=>{
@@ -42,6 +42,8 @@ check('uploaded image points to own repository',remote.ads.find(a=>a.placement==
 check('PNG dimensions accepted',t.dimensions(bytes).w===1);const huge=bytes.slice();huge[16]=127;check('huge raster rejected',!t.dimensions(huge));check('HTML image rejected',!t.dimensions(new TextEncoder().encode('<html><body>hello</body></html>')));check('credentialled URL rejected',!t.https('https://user:password@example.com/'));
 const hebrew='רוצים לפרסם כאן!';check('Hebrew roundtrip',t.decode64(t.text64(hebrew))===hebrew);
 check('no persistent token storage or HTML injection',!/(?:localStorage|sessionStorage|innerHTML|eval\()/.test(code));
-const csp=html.match(/http-equiv="Content-Security-Policy" content="([^"]+)"/)[1];const hash=crypto.createHash('sha256').update(html.match(/<script>([\s\S]*?)<\/script>/)[1]).digest('base64');check('CSP pins exact script',csp.includes("'sha256-"+hash+"'")&&!csp.includes("script-src 'unsafe-inline'"));
+const csp=html.match(/http-equiv="Content-Security-Policy" content="([^"]+)"/)[1];const hash=crypto.createHash('sha256').update(html.match(/<script>([\s\S]*?)<\/script>/)[1]).digest('base64');check('only two placement buttons',!html.includes('data-slot="bottom"'));
+check('CSP pins exact script',csp.includes("'sha256-"+hash+"'")&&!csp.includes("script-src 'unsafe-inline'"));
+const legacy=structuredClone(fixture);legacy.ads.push({placement:'bottom',image:'https://old.example/banner.png'});const merged=t.mergeAd(legacy,'belowSearch',{placement:'belowSearch',image:'https://new.example/banner.png'});check('lower edit replaces legacy bottom slot',merged.ads.length===2&&!merged.ads.some(a=>a.placement==='bottom'));
 console.log(count+' owner-panel checks passed. All writes were mocked; no production feed changed.');
 })().catch(error=>{console.error(error);process.exitCode=1;});

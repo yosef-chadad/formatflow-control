@@ -1,187 +1,25 @@
-# formatflow-control
-הממיר קבצים שלי!
+# FormatFlow V1
 
-ערוץ הניהול של **FormatFlow V1**. השינויים נעשים בקובץ [`feed.json`](feed.json).
-[פתיחה ישירה לעריכה ב-GitHub](https://github.com/yosef-chadad/formatflow-control/edit/main/feed.json).
-רק בעל המאגר ומי שקיבל הרשאת כתיבה יכולים לשנות את המקור. אין לשמור כאן סיסמאות,
-טוקנים או מפתחות — המאגר והקובץ מיועדים לקריאה ציבורית.
+Portable Windows file converter with local processing, batch conversion and 41 output formats.
+Current source version: **2.4.0** (.NET Framework 4.8, Windows x64).
 
-## ניהול פרסומות בלי לערוך קוד
+- [Application source](FormatFlowNative/)
+- [Downloads](../../releases)
+- [Advertisement manager](https://yosef-chadad.github.io/formatflow-control/)
 
-פתח את [מסך הניהול](https://yosef-chadad.github.io/formatflow-control/).
+The public advertisement manager requires an authorized GitHub credential to publish changes.
+No write credential is included in the site, application or public configuration.
+Personal administration instructions are distributed separately to the owner.
 
-1. לחץ **חיבור ל־GitHub**. במסך יש הסבר וקישור ליצירת fine-grained token.
-   בחר **Only select repositories → formatflow-control** והרשאת **Contents: Read and write** בלבד.
-2. הדבק את המפתח בשדה במסך הניהול ולחץ **התחבר**. אין לשלוח אותו בצ׳אט או להעלות למאגר.
-3. בחר תמונה שכבר העלית, העלה תמונה מהמחשב או הדבק כתובת HTTPS לתמונה.
-4. הדבק קישור יעד (או השאר ריק לבדיקה), בחר מיקום ולחץ **שמור ופרסם**.
-5. להסרה, בחר את המיקום ולחץ **הסר פרסומת**. התמונה עצמה אינה נמחקת.
+Binary resources are restored from the included icon encoding, original sound generator and
+pinned FFmpeg distribution using `python build-assets.py`. Build the application with
+`dotnet build FormatFlowNative/FormatFlow.csproj -c Release`.
 
-המפתח נמצא בזיכרון הלשונית בלבד ונשלח רק ל־api.github.com. הוא לא נשמר ב-localStorage,
-בקובץ feed או בתוכנה שמופצת למשתמשים. לאחר רענון או סגירה צריך להזין אותו שוב;
-אין צורך ליצור מפתח חדש כל עוד המפתח הקיים תקף. אפשר לשמור אותו במנהל הסיסמאות שלך.
-הדף עצמו ציבורי, אבל שמירה מחייבת הרשאת כתיבה אמיתית למאגר דרך GitHub.
+Third-party notices and applicable licenses are in
+[Resources/Notices.txt](FormatFlowNative/Resources/Notices.txt).
+The application invokes FFmpeg as a separate process. Its corresponding-source and distribution
+references are retained in those notices. Publication of source does not change the embedded
+application terms or separate third-party licenses.
 
-השמירה עורכת את הפרסומת במיקום שנבחר ואת מספר revision בלבד. היא משמרת את יתר
-הפרסומות, מדיניות הזמינות, appearance ו-latest. שינוי מקביל באותה פרסומת נחסם
-במקום להידרס. תמונות מהמחשב עולות בשמות ייחודיים לפני פרסום ההגדרות.
-החלפת מיקום בטופס מציגה את הפרסומת שבאותו מיקום; כדי להעביר פרסומת, פרסם בחדש
-והסר מהישן. לא מועברת פרסומת אוטומטית בין מיקומים.
-
-המסך דורש חיבור לרשת. לקוח FormatFlow עדיין צריך גרסה 2.3.0 ומעלה כדי להציג
-באנר תמונה. בניית מסך הניהול אינה מפיצה כשלעצמה גרסת EXE חדשה.
-
-בדיקות לוגיקה ובקשות שמירה עם רשת מדומה: `node tests/owner-panel.cjs`.
-לא נכתבו נתונים ל-feed החי בבדיקות. מפתח אמיתי ובדיקת דפדפן דרושים לבדיקת חיבור מקצה לקצה.
-
-## חיבור והפעלה
-
-הגרסה המחוברת הראשונה היא **2.2.0** (מהדורת ממשק V1). יש להפיץ למשתמשים את ה-EXE
-החדש המחובר לערוץ. עותקים ישנים שלא כוללים את הכתובת אינם מתחברים מעצמם.
-
-כתובת Pages: `https://yosef-chadad.github.io/formatflow-control/feed.json`.
-כתובת גיבוי שעובדת גם לפני הפעלת Pages:
-`https://raw.githubusercontent.com/yosef-chadad/formatflow-control/main/feed.json`.
-
-כדי להפעיל Pages: [Settings → Pages](https://github.com/yosef-chadad/formatflow-control/settings/pages)
-→ Source: **Deploy from a branch** → Branch: **main** → Folder: **/(root)** → **Save**.
-יש להמתין להשלמת פרסום האתר. לא נדרש לשנות שוב את ה-EXE כש-Pages יופעל.
-
-התוכנה קוראת את ההגדרות בפתיחה ושוב בערך בכל דקה. פרסום GitHub ומטמוני רשת עלולים
-להוסיף השהיה, ולכן השינויים אינם בהכרח מיידיים. אם הערוץ אינו זמין, נשמרת ההגדרה
-התקינה האחרונה, והמרה מקומית ממשיכה להיות זמינה בהתאם למדיניות האחרונה שהתקבלה.
-
-## איך עורכים
-
-1. פתח את `feed.json` דרך הקישור למעלה.
-2. לחץ על סמל העיפרון אם צריך, שנה את הערכים ושמור עם **Commit changes** לענף `main`.
-3. מומלץ להגדיל את `revision` בכל שינוי; המספר נועד לעזור לעקוב אחרי עריכות.
-4. הקפד על מרכאות כפולות, פסיקים ומבנה JSON תקין. ערכים בוליאניים הם `true` או `false` בלי מרכאות.
-
-בקובץ הראשוני התוכנה **פעילה**, אין פרסומות ואין עדכון חדש להורדה.
-
-## השבתה והפעלה מחדש
-
-להשבתה:
-
-```json
-"policy": {
-  "enabled": false,
-  "message": "התוכנה מושבתת זמנית לצורך תחזוקה. נסה שוב מאוחר יותר."
-}
-```
-
-אחרי קבלת ההוראה מופיע מסך חסימה עם ההודעה, כפתור בדיקה חוזרת וכפתור יציאה.
-בפתיחה חדשה, הבדיקה מתבצעת לפני חשיפת מסך ההמרה. אם המרה כבר פועלת, היא מורשית
-להסתיים ואז מופיעה החסימה. קבצים אינם נמחקים והגישה לתוצאות קיימות נשארת אפשרית.
-
-להפעלה מחדש שנה `enabled` ל-`true`. מחשב מנותק לא יכול לקבל הוראה חדשה; הוראת
-הזמינות האחרונה נשמרת גם להפעלה ללא רשת. זהו מנגנון זמינות של היישום, לא רישוי
-חסין עקיפה על מחשב שבשליטת המשתמש.
-
-## פרסומות והודעות
-
-**באנר תמונה נתמך מגרסה 2.3.0 ומעלה.** יש להתקין אותה פעם אחת, ידנית או דרך
-מנגנון העדכון של גרסה מחוברת. לקוח 2.2.0 מציג הודעות טקסט בלבד.
-
-העלה למאגר קובץ תמונה בשם `banner.jpg` דרך **Add file → Upload files**.
-מומלץ JPEG או PNG רחב בגודל **1600×320**. הממשק מציג פס בגובה 144 יחידות ומתאים
-את התמונה לרוחב המקום; קצוות עשויים להיחתך, לכן השאר טקסט חשוב במרכז.
-לאחר פרסום Pages, החלף את `ads` בקובץ `feed.json` בקטע הבא:
-
-```json
-"ads": [
-  {
-    "image": "https://yosef-chadad.github.io/formatflow-control/banner.jpg?v=1",
-    "link": "https://example.com/offer",
-    "placement": "belowSearch"
-  }
-]
-```
-
-החלף את `link` בדף שהמפרסם ביקש. לחיצה על כל הבאנר פותחת אותו בדפדפן ברירת
-המחדל. התמונה והקישור הם כתובות HTTPS. קישור התמונה צריך להחזיר את קובץ התמונה
-עצמו, לא עמוד GitHub בתצוגת blob. אם Pages עדיין לא זמין אפשר להשתמש גם בכתובת
-`https://raw.githubusercontent.com/yosef-chadad/formatflow-control/main/banner.jpg`.
-
-לשינוי פרסומת, החלף את התמונה ואת `link`. אם החלפת את תוכן הקובץ באותה כתובת,
-הגדל את הסיומת ל-`?v=2` כדי לזרז רענון. בלי שינוי הכתובת התמונה נבדקת מחדש
-בערך כל עשר דקות; מטמוני המארח עלולים להוסיף השהיה. שינוי כתובת או קישור מתקבל
-בבדיקת ההגדרות הבאה, בערך בכל דקה, בכפוף לרשת ולפרסום האתר.
-
-הבאנר מסומן כפרסומת וגדל וקטן בעדינות. כיבוי **אנימציות** בהגדרות מפסיק את
-התנועה. תמונה שכבר נטענה נשמרת להצגה ללא רשת; כשל בטעינת פרסומת אינו עוצר המרה.
-תמונות מוגבלות ל-6 MiB ול-8 מיליון פיקסלים, עד 8192×4096; SVG/HTML אינם נתמכים.
-טעינת תמונה פונה למארח שלה וחושפת לו נתוני בקשת רשת רגילים, בלי קובצי ההמרה.
-
-`"ads": []` מסתיר את כל הפרסומות. אפשר פרסומת אחת בכל מיקום, עד שלוש בסך הכול:
-
-| placement | מיקום |
-|---|---|
-| `top` | מעל כותרת ברוך הבא |
-| `belowSearch` | מתחת לשורת בחירת הקבצים |
-| `bottom` | בתחתית אזור התוכן, אחרי כרטיסי הקבצים |
-
-הודעות טקסט עדיין נתמכות: הוסף `"title": "כותרת"` ו-`"text": "הודעה"` במקום
-`image`, או לצידה כטקסט חלופי כשהתמונה אינה זמינה. `link` אופציונלי. אין להכניס
-HTML, JavaScript, XAML או קוד אחר לשדות האלה.
-
-## שינויים מיידיים בתצוגה
-
-אפשר לשנות את הכותרת, כותרת המשנה ואת צבע ההדגשה בלי לפרסם EXE חדש:
-
-```json
-"appearance": {
-  "title": "Welcome to Format Switcher",
-  "subtitle": "בחר-המר-הורד",
-  "accent": "#B2A0FF"
-}
-```
-
-צבע נכתב בפורמט `#RRGGBB`. שינויים במבנה התוכנה וביכולות ההמרה דורשים גרסת EXE חדשה.
-
-## עדכוני תוכנה
-
-1. בנה גרסת EXE חדשה עם מספר פנימי גדול מהגרסה שכבר הופצה.
-2. צור [GitHub Release במאגר הזה](https://github.com/yosef-chadad/formatflow-control/releases/new)
-   והעלה אליו את קובץ ה-EXE כ-asset, למשל `FormatFlow.exe`. אין להשתמש ב-ZIP עבור ערוץ זה.
-3. חשב SHA-256 של הקובץ, למשל ב-PowerShell:
-   `Get-FileHash -LiteralPath '.\FormatFlow.exe' -Algorithm SHA256`.
-4. עדכן בקובץ `feed.json` את `latest.version`, את `latest.url` לכתובת הנכס ב-Release,
-   ואת `latest.sha256` למחרוזת בת 64 תווים.
-
-דוגמה (יש להחליף את ערך ה-hash בתוצאה האמיתית לפני פרסום):
-
-```json
-"latest": {
-  "version": "2.3.0",
-  "url": "https://github.com/yosef-chadad/formatflow-control/releases/download/v2.3.0/FormatFlow.exe",
-  "sha256": "REPLACE_WITH_THE_REAL_64_CHARACTER_SHA256",
-  "installMode": "onNextLaunch"
-}
-```
-
-- `onNextLaunch`: מוריד ומאמת ברקע. בהפעלה הבאה, לאחר בדיקת הערוץ, מתקין אוטומטית
-  את הקובץ שכבר הורד. המשתמש רואה בהגדרות הודעה על העדכון המוכן.
-- `ask`: מוריד ומאמת ברקע, ומציג בהגדרות כפתור להתקנה באישור המשתמש.
-
-לא מחליפים תוכנה במהלך המרה פעילה. נשמר גיבוי ל-EXE הקודם. הלקוח מוריד גרסאות
-רק מכתובות Releases של **המאגר הזה**, ומאמת את ה-hash שוב לפני התקנה. אם אין הרשאת
-כתיבה למיקום ה-EXE, ההתקנה עלולה להיכשל; אין בקשה אוטומטית להרשאות מנהל.
-כאשר היישום מושבת מרחוק, הורדת עדכונים חדשים מושהית עד להחזרת הפעילות.
-
-SHA-256 בודק שלמות הורדה ואינו חתימת מפרסם. שמור על חשבון GitHub שלך והפעל בו
-אימות דו-שלבי. אין מפתח כתיבה או טוקן GitHub בתוך האפליקציה או בקובץ הציבורי.
-
-## מה מתעדכן אצל המשתמשים?
-
-- תמונה, קישור, מיקום מודעה, כותרת, צבע ומדיניות זמינות: שינוי ב-`feed.json`,
-  בלי EXE חדש, בתנאי שהתכונה כבר נתמכת בגרסה המותקנת.
-- שינוי בעיצוב, חלונות, יכולות המרה או קוד: EXE חדש ב-Releases ועדכון של שלושת
-  ערכי `latest` לגרסה, לכתובת ולהאש האמיתיים. גרסה מחוברת מורידה את הקובץ כולו,
-  כולל הממשק והמשאבים שבתוכו. אין כאן הרצת קטעי קוד מדף אינטרנט.
-- מחשב מנותק מקבל שינויים לאחר חיבור מחדש. במצב `onNextLaunch` התקנת EXE שכבר
-  הורד ואומת מתרחשת בהפעלה הבאה לאחר בדיקת ערוץ חדשה, לא באמצע המרה.
-
-הוספת תמונה למאגר או שינוי `latest.version` בלבד אינם מפרסמים גרסת תוכנה חדשה.
-אין להפעיל את דוגמת העדכון לפני שקובץ ה-EXE המתאים זמין בפועל ב-Release.
+The UI has two advertisement positions: a compact banner above the greeting and a lower banner
+after selected file cards. Public JSON is data; the client does not execute remote scripts.

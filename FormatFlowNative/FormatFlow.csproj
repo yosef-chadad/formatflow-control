@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+ <PropertyGroup>
+  <TargetFramework>net48</TargetFramework><OutputType>WinExe</OutputType><AssemblyName>FormatFlow</AssemblyName><RootNamespace>FormatFlow</RootNamespace><PlatformTarget>x64</PlatformTarget><LangVersion>latest</LangVersion><Nullable>disable</Nullable><DebugType>none</DebugType><Optimize>true</Optimize><Version>2.4.0</Version><ApplicationManifest>app.manifest</ApplicationManifest><GenerateAssemblyInfo>true</GenerateAssemblyInfo><ApplicationIcon>Resources/FormatFlow.ico</ApplicationIcon><Product>FormatFlow</Product><Description>Portable offline file converter</Description>
+ </PropertyGroup>
+ <ItemGroup>
+  <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="All"/>
+  <Reference Include="PresentationFramework"/><Reference Include="PresentationCore"/><Reference Include="WindowsBase"/><Reference Include="System.Xaml"/><Reference Include="System.Windows.Forms"/><Reference Include="System.Web.Extensions"/><Reference Include="System.Net.Http"/><Reference Include="System.IO.Compression"/><Reference Include="System.IO.Compression.FileSystem"/>
+  <EmbeddedResource Include="Resources/Completion.wav" LogicalName="FormatFlow.Completion.wav"/><EmbeddedResource Include="Resources/Terms.json" LogicalName="FormatFlow.Terms.json"/><EmbeddedResource Include="Resources/FormatFlow.ico" LogicalName="FormatFlow.App.ico"/><EmbeddedResource Include="Resources/publisher.json" LogicalName="FormatFlow.publisher.json"/><EmbeddedResource Include="Resources/Main.xaml" LogicalName="FormatFlow.Main.xaml"/><EmbeddedResource Include="Resources/formats.json" LogicalName="FormatFlow.formats.json"/><EmbeddedResource Include="Resources/ffmpeg.exe.gz" LogicalName="FormatFlow.ffmpeg.gz"/><EmbeddedResource Include="Resources/Notices.txt" LogicalName="FormatFlow.Notices.txt"/>
+ </ItemGroup>
+</Project>
