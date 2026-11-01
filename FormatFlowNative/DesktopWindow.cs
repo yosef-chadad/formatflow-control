@@ -48,12 +48,11 @@ namespace FormatFlow {
    Window.Loaded+=async(s,e)=>{
     StartSplashMotion();
     try{
-     Buttons();var minimumSplash=Task.Delay(1000,lifetime.Token);await InitializeChannel();
-     if(allowed&&channel!=null&&channel.Automatic&&channel.UpdatePath!=null){InstallUpdate(false);return;}
+     Buttons();_ =InitializeChannel();var minimumSplash=Task.Delay(1000,lifetime.Token);
      await minimumSplash;
      if(preferences.Animations){C<Border>("SplashOverlay").BeginAnimation(UIElement.OpacityProperty,new DoubleAnimation(1,0,TimeSpan.FromMilliseconds(180)));await Task.Delay(180,lifetime.Token);}
      C<Border>("SplashOverlay").Visibility=Visibility.Collapsed;C<Image>("SplashLogo").RenderTransform=Transform.Identity;AnimateWelcome();
-     if(allowed)await EnsureEngine();_ =CheckChannel();
+     if(allowed)_ =PrepareEngineSafely();
     }catch(OperationCanceledException){}catch(Exception ex){C<Border>("SplashOverlay").Visibility=Visibility.Collapsed;Say(ex.Message);}
    };
   }
@@ -181,10 +180,15 @@ namespace FormatFlow {
    Process.Start(new ProcessStartInfo("explorer.exe",ProcessRunner.Quote(Path.GetDirectoryName(card.Output))){UseShellExecute=true});
   }
   static void OpenLink(string url){if(Uri.TryCreate(url,UriKind.Absolute,out var uri)&&uri.Scheme=="https"&&string.IsNullOrEmpty(uri.UserInfo))Process.Start(new ProcessStartInfo(uri.AbsoluteUri){UseShellExecute=true});}
+  async Task PrepareEngineSafely(){try{await EnsureEngine();}catch(OperationCanceledException){}catch(Exception ex){Say(ex.Message);}}
   async Task EnsureEngine(){if(converter!=null)return;if(engineInitialization==null)engineInitialization=Embedded.EngineAsync();Say("מכין את מנוע ההמרה...");converter=new Converter(await engineInitialization);Say("");Buttons();foreach(var card in cards)Preview(card);}
   async Task InitializeChannel(){
    channel=new ChannelService();var cached=ChannelService.ReadCache();if(cached!=null)ApplyChannelState(cached);else ApplyPolicy(Storage.Load(Path.Combine(Storage.Root,"policy.json"),()=>new Availability{enabled=true}));
-   channelTimer=new System.Windows.Threading.DispatcherTimer{Interval=TimeSpan.FromMinutes(1)};channelTimer.Tick+=async(s,e)=>await CheckChannel();channelTimer.Start();await CheckChannel(false);
+   channelTimer=new System.Windows.Threading.DispatcherTimer{Interval=TimeSpan.FromMinutes(1)};
+   channelTimer.Tick+=async(s,e)=>{await CheckChannel(false);_ =CheckChannel();};channelTimer.Start();
+   await CheckChannel(false);
+   if(allowed&&channel.Automatic&&channel.UpdatePath!=null){InstallUpdate(false);return;}
+   _ =CheckChannel();
   }
   void RefreshAvailabilityScreen(){C<Border>("BlockedOverlay").Visibility=!allowed&&!busy?Visibility.Visible:Visibility.Collapsed;C<Border>("PolicyBanner").Visibility=!allowed&&busy?Visibility.Visible:Visibility.Collapsed;}
   void ApplyPolicy(Availability policy){allowed=policy.enabled;string message=string.IsNullOrWhiteSpace(policy.message)?"התוכנה אינה זמינה כרגע מטעם המפרסם. ניתן לבדוק שוב בהמשך.":policy.message;C<TextBlock>("PolicyText").Text=message;C<TextBlock>("BlockedMessage").Text=message;RefreshAvailabilityScreen();Buttons();}

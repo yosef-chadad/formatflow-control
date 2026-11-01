@@ -1,4 +1,4 @@
 {
-  "feed": "https://yosef-chadad.github.io/formatflow-control/feed.json",
-  "fallbackFeed": "https://raw.githubusercontent.com/yosef-chadad/formatflow-control/main/feed.json"
+  "feed": "https://raw.githubusercontent.com/yosef-chadad/formatflow-control/main/feed.json",
+  "fallbackFeed": "https://yosef-chadad.github.io/formatflow-control/feed.json"
 }
