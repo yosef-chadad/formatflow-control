@@ -28,7 +28,8 @@ jobs:
         shell: pwsh
         run: |
           [xml]$project = Get-Content FormatFlowNative/FormatFlow.csproj
-          $expected = $project.Project.PropertyGroup.Version
+          $declared = [version]$project.Project.PropertyGroup.Version
+          $expected = [version]::new($declared.Major, $declared.Minor, [Math]::Max(0, $declared.Build), [Math]::Max(0, $declared.Revision))
           $actual = (Get-Item FormatFlowNative/bin/Release/net48/FormatFlow.exe).VersionInfo.FileVersion
           if ([version]$actual -ne [version]$expected) { throw 'File version mismatch' }
       - name: Publish verified release and automatic update
