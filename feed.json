@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "revision": 3,
+  "revision": 4,
   "policy": {
     "enabled": true,
     "message": "התוכנה מושבתת זמנית מטעם המפרסם. אפשר לבדוק שוב בהמשך."
@@ -20,6 +20,11 @@
       "image": "https://raw.githubusercontent.com/yosef-chadad/formatflow-control/main/FormatFlow%20luminous%20Hebrew%20banner.png",
       "link": "",
       "placement": "top"
+    },
+    {
+      "image": "https://raw.githubusercontent.com/yosef-chadad/formatflow-control/main/FormatFlow%20luminous%20Hebrew%20banner.png",
+      "link": "",
+      "placement": "bottom"
     }
   ],
   "latest": {
