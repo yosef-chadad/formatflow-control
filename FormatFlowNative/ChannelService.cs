@@ -43,20 +43,29 @@ namespace FormatFlow {
 #if NETFRAMEWORK
    ServicePointManager.SecurityProtocol=SecurityProtocolType.Tls12;
 #endif
-   using(var timeout=CancellationTokenSource.CreateLinkedTokenSource(token))using(var handler=new HttpClientHandler{AllowAutoRedirect=false})using(var client=new HttpClient(handler)){
-    timeout.CancelAfter(asset?180000:30000);client.Timeout=Timeout.InfiniteTimeSpan;client.DefaultRequestHeaders.UserAgent.ParseAdd("FormatFlow/2.2.0");client.DefaultRequestHeaders.CacheControl=new System.Net.Http.Headers.CacheControlHeaderValue{NoCache=true};var uri=new Uri(address);if(!asset){var fresh=new UriBuilder(uri);fresh.Query=(fresh.Query.Length>1?fresh.Query.Substring(1)+"&":"")+"ff_check="+DateTime.UtcNow.Ticks;uri=fresh.Uri;}
+   using(var timeout=CancellationTokenSource.CreateLinkedTokenSource(token)){
+    timeout.CancelAfter(asset?180000:30000);var uri=new Uri(address);
+    if(!asset){var fresh=new UriBuilder(uri);fresh.Query=(fresh.Query.Length>1?fresh.Query.Substring(1)+"&":"")+"ff_check="+DateTime.UtcNow.Ticks;uri=fresh.Uri;}
     for(int redirect=0;redirect<7;redirect++){
-     ChannelRules.ValidateUrl(uri,asset);using(var response=await client.GetAsync(uri,HttpCompletionOption.ResponseHeadersRead,timeout.Token).ConfigureAwait(false)){
-      if((int)response.StatusCode>=300&&(int)response.StatusCode<400){if(response.Headers.Location==null)throw new InvalidDataException("Invalid redirect.");uri=new Uri(uri,response.Headers.Location);continue;}
-      response.EnsureSuccessStatusCode();if(response.Content.Headers.ContentLength>limit)throw new InvalidDataException("Download exceeds its limit.");
-      using(var input=await response.Content.ReadAsStreamAsync().ConfigureAwait(false))using(var file=new FileStream(output,FileMode.Create,FileAccess.Write,FileShare.None,65536,true)){
-       var buffer=new byte[65536];long total=0;int read;while((read=await input.ReadAsync(buffer,0,buffer.Length,timeout.Token).ConfigureAwait(false))>0){total+=read;if(total>limit)throw new InvalidDataException("Download exceeds its limit.");await file.WriteAsync(buffer,0,read,timeout.Token).ConfigureAwait(false);}
-      }
-      return;
+     ChannelRules.ValidateUrl(uri,asset);
+     var request=(HttpWebRequest)WebRequest.Create(uri);request.AllowAutoRedirect=false;request.UserAgent="FormatFlow/2.2.0";request.Headers[HttpRequestHeader.CacheControl]="no-cache";
+     using(timeout.Token.Register(()=>request.Abort())){
+      try{
+       using(var response=(HttpWebResponse)await request.GetResponseAsync().ConfigureAwait(false)){
+        int status=(int)response.StatusCode;
+        if(status>=300&&status<400){string location=response.Headers[HttpResponseHeader.Location];if(string.IsNullOrEmpty(location))throw new InvalidDataException("Invalid redirect.");uri=new Uri(uri,location);continue;}
+        if(response.ContentLength>limit)throw new InvalidDataException("Download exceeds its limit.");
+        using(var input=response.GetResponseStream())using(var file=new FileStream(output,FileMode.Create,FileAccess.Write,FileShare.None,65536,true)){
+         var buffer=new byte[65536];long total=0;int read;while((read=await input.ReadAsync(buffer,0,buffer.Length,timeout.Token).ConfigureAwait(false))>0){total+=read;if(total>limit)throw new InvalidDataException("Download exceeds its limit.");await file.WriteAsync(buffer,0,read,timeout.Token).ConfigureAwait(false);}
+        }
+        return;
+       }
+      }catch(WebException){timeout.Token.ThrowIfCancellationRequested();throw;}
      }
     }
     throw new InvalidDataException("Too many redirects.");
    }
   }
+
  }
 }
