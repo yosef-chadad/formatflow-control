@@ -38,7 +38,7 @@ namespace FormatFlow {
   void Say(string message){C<TextBlock>("StatusText").Text=message;}
   public DesktopWindow(){
    preferences=Storage.Load(settingsPath,()=>new Preferences());profiles=Json.Read<List<FormatProfile>>(Embedded.Text("formats.json"));
-   Window=(Window)XamlReader.Parse(Embedded.Text("Main.xaml"));C<ItemsControl>("Cards").ItemsSource=cards;C<TextBlock>("VersionLabel").Text="V1";selectedExtension=preferences.RememberFormat?preferences.LastFormat:"mp4";
+   Window=(Window)XamlReader.Parse(Embedded.Text("Main.xaml"));C<ItemsControl>("Cards").ItemsSource=cards;C<TextBlock>("VersionLabel").Text="V1 · "+ChannelRules.CurrentVersion.ToString(3);selectedExtension=preferences.RememberFormat?preferences.LastFormat:"mp4";
    var work=SystemParameters.WorkArea;Window.MinWidth=Math.Min(420,work.Width-16);Window.MinHeight=Math.Min(320,work.Height-16);
    Window.Width=Math.Max(Window.MinWidth,Math.Min(preferences.Width>0?preferences.Width:1080,work.Width*.9));Window.Height=Math.Max(Window.MinHeight,Math.Min(preferences.Height>0?preferences.Height:760,work.Height*.88));Window.WindowStartupLocation=WindowStartupLocation.Manual;Window.Left=work.Left+(work.Width-Window.Width)/2;Window.Top=work.Top+(work.Height-Window.Height)/2;
    LoadPreferenceControls();ApplyTheme();Refresh();HookEvents();
@@ -86,6 +86,7 @@ namespace FormatFlow {
    C<Button>("CancelButton").Click+=(s,e)=>{activity?.Cancel();Say("מבטל את הפעולה...");};
    C<Button>("ConvertButton").Click+=async(s,e)=>await ConvertSelected();C<Button>("OpenResults").Click+=(s,e)=>OpenResults();
    C<Button>("InstallUpdate").Click+=(s,e)=>InstallUpdate(true);
+   C<Button>("RefreshPublisher").Click+=async(s,e)=>{C<Button>("RefreshPublisher").IsEnabled=false;try{await CheckChannel(false);nextUpdateCheck=DateTime.MinValue;_ =CheckForUpdate();}finally{C<Button>("RefreshPublisher").IsEnabled=true;}};
    C<Button>("RetryChannel").Click+=async(s,e)=>{C<Button>("RetryChannel").IsEnabled=false;try{await CheckChannel(false);if(allowed)await EnsureEngine();}finally{C<Button>("RetryChannel").IsEnabled=true;}};
    C<Button>("CloseBlocked").Click+=(s,e)=>Window.Close();
    C<Button>("OpenSaved").Click+=(s,e)=>{try{Directory.CreateDirectory(preferences.Output);Process.Start(new ProcessStartInfo("explorer.exe",ProcessRunner.Quote(preferences.Output)){UseShellExecute=true});}catch(Exception ex){Say(ex.Message);}};
@@ -126,7 +127,7 @@ namespace FormatFlow {
   void ChooseFormat(string extension){var profile=profiles.FirstOrDefault(p=>p.ext==extension);if(profile==null||!cards.Where(c=>c.IsSelected).All(c=>FormatRules.Accepts(profile,c.Path)))return;selectedExtension=extension;Formats();C<Border>("FormatOverlay").Visibility=Visibility.Collapsed;}
   void ShowSections(string title,IEnumerable<TextSection> sections){C<TextBlock>("TextTitle").Text=title;C<ItemsControl>("TextSections").ItemsSource=sections;C<ItemsControl>("TextSections").Visibility=Visibility.Visible;C<TextBox>("LicenseText").Visibility=Visibility.Collapsed;C<Button>("LicensesButton").Visibility=Visibility.Visible;ShowOverlay("TextOverlay");}
   void ShowTerms(){ShowSections("תנאי השימוש — FormatFlow",Json.Read<List<TextSection>>(Embedded.Text("Terms.json")));}
-  void ShowAbout(){ShowSections("אודות FormatFlow",new[]{new TextSection{Title="FormatFlow · V1",Body="ממיר קבצים מקומי ל־Windows. תמונות, וידאו, שמע וטבלאות — במקום אחד, עם 41 פורמטי פלט. התוכנה נפתחת מקובץ EXE אחד והקבצים נשארים במחשב שלך."},new TextSection{Title="קיצורי מקלדת",Body="Ctrl+O — הוספת קבצים.\nCtrl+Enter — התחלת המרה.\nCtrl+L — בחירת פורמט.\nEsc — סגירת החלונית העליונה."},new TextSection{Title="גרסה ורישיונות",Body="מהדורה V1 · גרסת קובץ 2.4.0.\nהתוכנה משתמשת ברכיבי קוד פתוח, לרבות FFmpeg. כפתור רישיונות הרכיבים מציג את הודעות הזכויות ואת הרישיונות הנפרדים."}});}
+  void ShowAbout(){ShowSections("אודות FormatFlow",new[]{new TextSection{Title="FormatFlow · V1",Body="ממיר קבצים מקומי ל־Windows. תמונות, וידאו, שמע וטבלאות — במקום אחד, עם 41 פורמטי פלט. התוכנה נפתחת מקובץ EXE אחד והקבצים נשארים במחשב שלך."},new TextSection{Title="קיצורי מקלדת",Body="Ctrl+O — הוספת קבצים.\nCtrl+Enter — התחלת המרה.\nCtrl+L — בחירת פורמט.\nEsc — סגירת החלונית העליונה."},new TextSection{Title="גרסה ורישיונות",Body="מהדורה V1 · גרסת קובץ "+ChannelRules.CurrentVersion.ToString(3)+".\nהתוכנה משתמשת ברכיבי קוד פתוח, לרבות FFmpeg. כפתור רישיונות הרכיבים מציג את הודעות הזכויות ואת הרישיונות הנפרדים."}});}
   void ShowLicenses(){C<TextBlock>("TextTitle").Text="רישיונות רכיבים";C<ItemsControl>("TextSections").Visibility=Visibility.Collapsed;C<TextBox>("LicenseText").Text=Embedded.Text("Notices.txt");C<TextBox>("LicenseText").Visibility=Visibility.Visible;C<Button>("LicensesButton").Visibility=Visibility.Collapsed;ShowOverlay("TextOverlay");}
   void SavePreferences(){preferences.Brightness=C<Slider>("Brightness").Value;preferences.OpenAfter=C<CheckBox>("OpenAfter").IsChecked==true;preferences.KeepMetadata=C<CheckBox>("KeepMetadata").IsChecked==true;preferences.SoundOnComplete=C<CheckBox>("SoundOnComplete").IsChecked==true;preferences.RememberFormat=C<CheckBox>("RememberFormat").IsChecked==true;preferences.Animations=C<CheckBox>("Animations").IsChecked==true;preferences.LastFormat=preferences.RememberFormat?selectedExtension:"mp4";if(Window.WindowState==WindowState.Normal){preferences.Width=Window.Width;preferences.Height=Window.Height;}Storage.Atomic(settingsPath,Json.Write(preferences));}
   void ApplyTheme(){
@@ -183,7 +184,7 @@ namespace FormatFlow {
   async Task PrepareEngineSafely(){try{await EnsureEngine();}catch(OperationCanceledException){}catch(Exception ex){Say(ex.Message);}}
   async Task EnsureEngine(){if(converter!=null)return;if(engineInitialization==null)engineInitialization=Embedded.EngineAsync();Say("מכין את מנוע ההמרה...");converter=new Converter(await engineInitialization);Say("");Buttons();foreach(var card in cards)Preview(card);}
   async Task InitializeChannel(){
-   channel=new ChannelService();updateChannel=new ChannelService();var cached=ChannelService.ReadCache();if(cached!=null)ApplyChannelState(cached);else ApplyPolicy(Storage.Load(Path.Combine(Storage.Root,"policy.json"),()=>new Availability{enabled=true}));
+   channel=new ChannelService();updateChannel=new ChannelService();var cached=ChannelService.ReadCache();if(cached!=null)ApplyChannelState(cached,false);else ApplyPolicy(Storage.Load(Path.Combine(Storage.Root,"policy.json"),()=>new Availability{enabled=true}));
    channelTimer=new System.Windows.Threading.DispatcherTimer{Interval=TimeSpan.FromSeconds(10)};
    channelTimer.Tick+=async(s,e)=>{await CheckChannel(false);_ =CheckForUpdate();};channelTimer.Start();
    await CheckChannel(false);
@@ -192,10 +193,10 @@ namespace FormatFlow {
   }
   void RefreshAvailabilityScreen(){C<Border>("BlockedOverlay").Visibility=!allowed&&!busy?Visibility.Visible:Visibility.Collapsed;C<Border>("PolicyBanner").Visibility=!allowed&&busy?Visibility.Visible:Visibility.Collapsed;}
   void ApplyPolicy(Availability policy){allowed=policy.enabled;string message=string.IsNullOrWhiteSpace(policy.message)?"התוכנה אינה זמינה כרגע מטעם המפרסם. ניתן לבדוק שוב בהמשך.":policy.message;C<TextBlock>("PolicyText").Text=message;C<TextBlock>("BlockedMessage").Text=message;RefreshAvailabilityScreen();Buttons();}
-  void ApplyChannelState(ChannelFeed state){
+  void ApplyChannelState(ChannelFeed state,bool showAds=true){
    ApplyPolicy(state.policy);publisherAppearance=state.appearance;C<TextBlock>("WelcomeTitle").Text=string.IsNullOrWhiteSpace(state.appearance.title)?"Welcome to Format Switcher":state.appearance.title;C<TextBlock>("WelcomeSubtitle").Text=string.IsNullOrWhiteSpace(state.appearance.subtitle)?"בחר-המר-הורד":state.appearance.subtitle;ApplyTheme();
    foreach(string name in new[]{"AdTop","AdSearch"}){
-    var slot=C<ContentControl>(name);string placement=name=="AdTop"?"top":"belowSearch";var ad=state.ads.FirstOrDefault(a=>a.placement==placement);var view=slot.Content as BannerPresentation;
+    var slot=C<ContentControl>(name);string placement=name=="AdTop"?"top":"belowSearch";var ad=showAds?state.ads.FirstOrDefault(a=>a.placement==placement):null;var view=slot.Content as BannerPresentation;
     if(ad==null){view?.Dispose();slot.Content=null;slot.Visibility=Visibility.Collapsed;continue;}
     if(view==null||!view.Matches(ad)){view?.Dispose();view=new BannerPresentation(ad,lifetime.Token);slot.Content=view;}
     slot.Visibility=Visibility.Visible;_ =view.LoadAsync(bannerImages);
@@ -205,11 +206,19 @@ namespace FormatFlow {
   async Task CheckChannel(bool downloadUpdate=true){
    try{
     var result=await channel.CheckAsync(lifetime.Token,downloadUpdate);if(result==null)return;ApplyChannelState(result.State);
+    C<TextBlock>("PublisherStatus").Text=channel.CacheError==null?"מחובר · ההגדרות עודכנו ("+result.State.revision+")":"מחובר · ההגדרות מוצגות אך לא נשמרו במחשב";
+    WriteChannelStatus(result.State.revision,channel.CacheError);
     C<Button>("InstallUpdate").Visibility=result.UpdatePath==null?Visibility.Collapsed:Visibility.Visible;
     C<TextBlock>("UpdateText").Text=result.UpdatePath==null?"":("גרסה "+result.Version+(result.Automatic?" תותקן אוטומטית בהפעלה הבאה. אפשר להתקין גם כעת.":" מוכנה להתקנה."));
     if(allowed&&converter==null&&C<Border>("SplashOverlay").Visibility!=Visibility.Visible)await EnsureEngine();
-   }catch(OperationCanceledException){}catch{/* Offline launch uses the last valid publisher configuration. */}
+   }catch(OperationCanceledException){if(!lifetime.IsCancellationRequested)PublisherUnavailable("החיבור לא השלים את הבדיקה בזמן");}catch(Exception ex){PublisherUnavailable(ex.Message);}
   }
+  void PublisherUnavailable(string message){
+   foreach(string name in new[]{"AdTop","AdSearch"}){var slot=C<ContentControl>(name);(slot.Content as BannerPresentation)?.Dispose();slot.Content=null;slot.Visibility=Visibility.Collapsed;}
+   C<TextBlock>("PublisherStatus").Text="לא התקבלו הגדרות עדכניות · ננסה שוב אוטומטית";
+   C<TextBlock>("PublisherStatus").ToolTip=message;WriteChannelStatus(null,message);Resize();
+  }
+  void WriteChannelStatus(int? revision,string error){try{Storage.Atomic(Path.Combine(Storage.Root,"channel-status.json"),Json.Write(new{version=ChannelRules.CurrentVersion.ToString(3),checkedUtc=DateTime.UtcNow.ToString("O"),revision,error=error==null?null:error.Substring(0,Math.Min(1500,error.Length))}));}catch{}}
   async Task CheckForUpdate(){
    if(updateChannel==null||updateChecking||DateTime.UtcNow<nextUpdateCheck)return;
    updateChecking=true;nextUpdateCheck=DateTime.UtcNow.AddMinutes(1);
@@ -222,3 +231,4 @@ namespace FormatFlow {
   void InstallUpdate(bool ask=true){var source=updateChannel?.UpdatePath!=null?updateChannel:channel;if(busy||source==null||source.UpdatePath==null)return;if(ask&&MessageBox.Show(Window,"להתקין את העדכון ולהפעיל מחדש?","FormatFlow",MessageBoxButton.YesNo,MessageBoxImage.Question)!=MessageBoxResult.Yes)return;SavePreferences();string target=Process.GetCurrentProcess().MainModule.FileName;Process.Start(new ProcessStartInfo(source.UpdatePath,"--apply-update "+ProcessRunner.Quote(target)+" "+Process.GetCurrentProcess().Id+" "+ProcessRunner.Quote(source.UpdateHash)){UseShellExecute=false,CreateNoWindow=true});Window.Close();}
  }
 }
+
