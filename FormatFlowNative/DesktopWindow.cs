@@ -33,7 +33,7 @@ namespace FormatFlow {
   readonly HashSet<string> previewed=new HashSet<string>();
   readonly string settingsPath=Path.Combine(Storage.Root,"preferences.json"),session=Path.Combine(Storage.Root,"previews",Guid.NewGuid().ToString("N"));
   string selectedExtension="mp4",formatCategory="all";Appearance publisherAppearance;Task<string> engineInitialization;
-  CancellationTokenSource activity;Converter converter;bool busy,selecting,allowed=true;ChannelService channel;System.Windows.Threading.DispatcherTimer channelTimer;
+  CancellationTokenSource activity;Converter converter;bool busy,selecting,allowed=true;ChannelService channel,updateChannel;System.Windows.Threading.DispatcherTimer channelTimer;bool updateChecking;DateTime nextUpdateCheck;
   T C<T>(string name) where T:class=>Window.FindName(name) as T??throw new InvalidOperationException("Missing UI component: "+name);
   void Say(string message){C<TextBlock>("StatusText").Text=message;}
   public DesktopWindow(){
@@ -183,12 +183,12 @@ namespace FormatFlow {
   async Task PrepareEngineSafely(){try{await EnsureEngine();}catch(OperationCanceledException){}catch(Exception ex){Say(ex.Message);}}
   async Task EnsureEngine(){if(converter!=null)return;if(engineInitialization==null)engineInitialization=Embedded.EngineAsync();Say("מכין את מנוע ההמרה...");converter=new Converter(await engineInitialization);Say("");Buttons();foreach(var card in cards)Preview(card);}
   async Task InitializeChannel(){
-   channel=new ChannelService();var cached=ChannelService.ReadCache();if(cached!=null)ApplyChannelState(cached);else ApplyPolicy(Storage.Load(Path.Combine(Storage.Root,"policy.json"),()=>new Availability{enabled=true}));
-   channelTimer=new System.Windows.Threading.DispatcherTimer{Interval=TimeSpan.FromMinutes(1)};
-   channelTimer.Tick+=async(s,e)=>{await CheckChannel(false);_ =CheckChannel();};channelTimer.Start();
+   channel=new ChannelService();updateChannel=new ChannelService();var cached=ChannelService.ReadCache();if(cached!=null)ApplyChannelState(cached);else ApplyPolicy(Storage.Load(Path.Combine(Storage.Root,"policy.json"),()=>new Availability{enabled=true}));
+   channelTimer=new System.Windows.Threading.DispatcherTimer{Interval=TimeSpan.FromSeconds(10)};
+   channelTimer.Tick+=async(s,e)=>{await CheckChannel(false);_ =CheckForUpdate();};channelTimer.Start();
    await CheckChannel(false);
    if(allowed&&channel.Automatic&&channel.UpdatePath!=null){InstallUpdate(false);return;}
-   _ =CheckChannel();
+   _ =CheckForUpdate();
   }
   void RefreshAvailabilityScreen(){C<Border>("BlockedOverlay").Visibility=!allowed&&!busy?Visibility.Visible:Visibility.Collapsed;C<Border>("PolicyBanner").Visibility=!allowed&&busy?Visibility.Visible:Visibility.Collapsed;}
   void ApplyPolicy(Availability policy){allowed=policy.enabled;string message=string.IsNullOrWhiteSpace(policy.message)?"התוכנה אינה זמינה כרגע מטעם המפרסם. ניתן לבדוק שוב בהמשך.":policy.message;C<TextBlock>("PolicyText").Text=message;C<TextBlock>("BlockedMessage").Text=message;RefreshAvailabilityScreen();Buttons();}
@@ -210,6 +210,15 @@ namespace FormatFlow {
     if(allowed&&converter==null&&C<Border>("SplashOverlay").Visibility!=Visibility.Visible)await EnsureEngine();
    }catch(OperationCanceledException){}catch{/* Offline launch uses the last valid publisher configuration. */}
   }
-  void InstallUpdate(bool ask=true){if(busy||channel==null||channel.UpdatePath==null)return;if(ask&&MessageBox.Show(Window,"להתקין את העדכון ולהפעיל מחדש?","FormatFlow",MessageBoxButton.YesNo,MessageBoxImage.Question)!=MessageBoxResult.Yes)return;SavePreferences();string target=Process.GetCurrentProcess().MainModule.FileName;Process.Start(new ProcessStartInfo(channel.UpdatePath,"--apply-update "+ProcessRunner.Quote(target)+" "+Process.GetCurrentProcess().Id+" "+ProcessRunner.Quote(channel.UpdateHash)){UseShellExecute=false,CreateNoWindow=true});Window.Close();}
+  async Task CheckForUpdate(){
+   if(updateChannel==null||updateChecking||DateTime.UtcNow<nextUpdateCheck)return;
+   updateChecking=true;nextUpdateCheck=DateTime.UtcNow.AddMinutes(1);
+   try{
+    var result=await updateChannel.CheckAsync(lifetime.Token,true,false);if(result?.UpdatePath==null)return;
+    C<Button>("InstallUpdate").Visibility=Visibility.Visible;
+    C<TextBlock>("UpdateText").Text="גרסה "+result.Version+(result.Automatic?" תותקן אוטומטית בהפעלה הבאה. אפשר להתקין גם כעת.":" מוכנה להתקנה.");
+   }catch(OperationCanceledException){}catch{}finally{updateChecking=false;}
+  }
+  void InstallUpdate(bool ask=true){var source=updateChannel?.UpdatePath!=null?updateChannel:channel;if(busy||source==null||source.UpdatePath==null)return;if(ask&&MessageBox.Show(Window,"להתקין את העדכון ולהפעיל מחדש?","FormatFlow",MessageBoxButton.YesNo,MessageBoxImage.Question)!=MessageBoxResult.Yes)return;SavePreferences();string target=Process.GetCurrentProcess().MainModule.FileName;Process.Start(new ProcessStartInfo(source.UpdatePath,"--apply-update "+ProcessRunner.Quote(target)+" "+Process.GetCurrentProcess().Id+" "+ProcessRunner.Quote(source.UpdateHash)){UseShellExecute=false,CreateNoWindow=true});Window.Close();}
  }
 }

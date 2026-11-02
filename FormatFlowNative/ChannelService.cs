@@ -16,7 +16,7 @@ namespace FormatFlow {
   public static readonly string CachePath=Path.Combine(Storage.Root,"channel-cache.json");
   bool checking;
   public static ChannelFeed ReadCache(){try{return ChannelRules.Normalize(Json.Read<ChannelFeed>(File.ReadAllText(CachePath)));}catch{return null;}}
-  public async Task<ChannelResult> CheckAsync(CancellationToken token,bool downloadUpdate=true){
+  public async Task<ChannelResult> CheckAsync(CancellationToken token,bool downloadUpdate=true,bool persistFeed=true){
    if(checking||string.IsNullOrWhiteSpace(Feed))return null;checking=true;
    try{
     string folder=Path.Combine(Storage.Root,"updates");Directory.CreateDirectory(folder);string temp=Path.Combine(folder,Guid.NewGuid().ToString("N")+".json");ChannelFeed feed;
@@ -24,7 +24,7 @@ namespace FormatFlow {
      try{await DownloadAsync(Feed,temp,262144,false,token).ConfigureAwait(false);}catch{token.ThrowIfCancellationRequested();if(string.IsNullOrWhiteSpace(Config.fallbackFeed))throw;await DownloadAsync(Config.fallbackFeed,temp,262144,false,token).ConfigureAwait(false);}
      feed=ChannelRules.Normalize(Json.Read<ChannelFeed>(File.ReadAllText(temp)));
     }finally{if(File.Exists(temp))File.Delete(temp);}
-    Storage.Atomic(CachePath,Json.Write(feed));Storage.Atomic(Path.Combine(Storage.Root,"policy.json"),Json.Write(feed.policy));
+    if(persistFeed){Storage.Atomic(CachePath,Json.Write(feed));Storage.Atomic(Path.Combine(Storage.Root,"policy.json"),Json.Write(feed.policy));}
     var result=new ChannelResult{State=feed};UpdatePath=null;UpdateHash=null;Automatic=false;
     try{
      if(feed.policy.enabled&&ChannelRules.IsNewRelease(feed.latest)){

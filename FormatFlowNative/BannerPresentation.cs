@@ -25,7 +25,7 @@ namespace FormatFlow {
     var bytes=await images.LoadAsync(ad.image,stop.Token);if(bytes==null||stop.IsCancellationRequested)return;
     if(!BannerImages.TryDimensions(bytes,out int width,out _))return;
     using(var stream=new MemoryStream(bytes)){var bitmap=new BitmapImage();bitmap.BeginInit();bitmap.CacheOption=BitmapCacheOption.OnLoad;bitmap.DecodePixelWidth=Math.Min(1600,width);bitmap.StreamSource=stream;bitmap.EndInit();bitmap.Freeze();picture=bitmap;}
-    nextCheck=DateTime.UtcNow.AddMinutes(10);PropertyChanged?.Invoke(this,new PropertyChangedEventArgs(nameof(Picture)));PropertyChanged?.Invoke(this,new PropertyChangedEventArgs(nameof(ShowFallback)));
+    nextCheck=DateTime.UtcNow.AddSeconds(10);PropertyChanged?.Invoke(this,new PropertyChangedEventArgs(nameof(Picture)));PropertyChanged?.Invoke(this,new PropertyChangedEventArgs(nameof(ShowFallback)));
    }catch(OperationCanceledException){}catch{/* A broken or offline ad must never interrupt conversion. */}finally{loading=false;}
   }
   public void Dispose(){stop.Cancel();stop.Dispose();}

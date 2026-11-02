@@ -42,7 +42,7 @@ namespace FormatFlow {
   public async Task<byte[]> LoadAsync(string url,CancellationToken token){
    if(!IsAllowedUrl(url))return null;token.ThrowIfCancellationRequested();string path=CachePath(url);
    byte[] cached=null;
-   try{if(File.Exists(path)&&new FileInfo(path).Length<=MaxBytes){cached=File.ReadAllBytes(path);if(!TryDimensions(cached,out _,out _)){cached=null;File.Delete(path);}else if(DateTime.UtcNow-File.GetLastWriteTimeUtc(path)<TimeSpan.FromMinutes(10))return cached;}}catch(IOException){}
+   try{if(File.Exists(path)&&new FileInfo(path).Length<=MaxBytes){cached=File.ReadAllBytes(path);if(!TryDimensions(cached,out _,out _)){cached=null;File.Delete(path);}else if(DateTime.UtcNow-File.GetLastWriteTimeUtc(path)<TimeSpan.FromSeconds(30))return cached;}}catch(IOException){}
    try{
    using(var timeout=CancellationTokenSource.CreateLinkedTokenSource(token)){
     timeout.CancelAfter(TimeSpan.FromSeconds(10));Uri uri=new Uri(url);

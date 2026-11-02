@@ -14,5 +14,25 @@ if ($top.Parent -ne $hero -or $hero.Children[0] -ne $top) { throw 'Top banner is
 if ($content.Children.IndexOf($lower) -le $content.Children.IndexOf($queue)) { throw 'Lower banner must follow file cards' }
 if ($window.FindName('AdBottom')) { throw 'Unexpected third advertisement' }
 if ($top.MaxWidth -ge $lower.MaxWidth) { throw 'Top banner must be narrower' }
+# Exercise the real WPF advertisement rendering when the owner removes or restores a slot.
+$flags = [Reflection.BindingFlags]'Instance,NonPublic'
+$apply = $desktop.GetType().GetMethod('ApplyChannelState', $flags)
+$feedType = $assembly.GetType('FormatFlow.ChannelFeed', $true)
+$read = $assembly.GetType('FormatFlow.Json', $true).GetMethod('Read').MakeGenericMethod(@($feedType))
+$normalize = $assembly.GetType('FormatFlow.ChannelRules', $true).GetMethod('Normalize')
+function Set-TestFeed([string]$json) {
+  $feed = $read.Invoke($null, @($json))
+  $feed = $normalize.Invoke($null, @($feed))
+  [void]$apply.Invoke($desktop, @($feed))
+}
+Set-TestFeed '{"schema":1,"ads":[{"title":"Top","placement":"top"},{"title":"Bottom","placement":"belowSearch"}]}'
+if ($top.Visibility -ne [System.Windows.Visibility]::Visible -or $lower.Visibility -ne [System.Windows.Visibility]::Visible) { throw 'Both configured banners must appear' }
+Set-TestFeed '{"schema":1,"ads":[{"title":"Bottom","placement":"belowSearch"}]}'
+if ($top.Visibility -ne [System.Windows.Visibility]::Collapsed -or $top.Content -ne $null) { throw 'Removed top banner must disappear' }
+if ($lower.Visibility -ne [System.Windows.Visibility]::Visible) { throw 'Removing top must preserve lower banner' }
+Set-TestFeed '{"schema":1,"ads":[]}'
+if ($top.Visibility -ne [System.Windows.Visibility]::Collapsed -or $lower.Visibility -ne [System.Windows.Visibility]::Collapsed) { throw 'Both removed banners must disappear' }
+Set-TestFeed '{"schema":1,"ads":[{"title":"Top again","placement":"top"}]}'
+if ($top.Visibility -ne [System.Windows.Visibility]::Visible -or $lower.Visibility -ne [System.Windows.Visibility]::Collapsed) { throw 'Top banner must be restorable independently' }
 $window.Close()
 Write-Output 'Windows WPF construction and two-banner structure passed.'
