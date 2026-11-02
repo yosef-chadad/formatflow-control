@@ -45,7 +45,6 @@ namespace FormatFlow {
 #endif
    using(var timeout=CancellationTokenSource.CreateLinkedTokenSource(token)){
     timeout.CancelAfter(asset?180000:30000);var uri=new Uri(address);
-    if(!asset){var fresh=new UriBuilder(uri);fresh.Query=(fresh.Query.Length>1?fresh.Query.Substring(1)+"&":"")+"ff_check="+DateTime.UtcNow.Ticks;uri=fresh.Uri;}
     for(int redirect=0;redirect<7;redirect++){
      ChannelRules.ValidateUrl(uri,asset);
      var request=(HttpWebRequest)WebRequest.Create(uri);request.AllowAutoRedirect=false;request.UserAgent="FormatFlow/2.2.0";request.Headers[HttpRequestHeader.CacheControl]="no-cache";
