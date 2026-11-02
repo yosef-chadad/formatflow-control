@@ -44,7 +44,7 @@ namespace FormatFlow {
    ServicePointManager.SecurityProtocol=SecurityProtocolType.Tls12;
 #endif
    using(var timeout=CancellationTokenSource.CreateLinkedTokenSource(token))using(var handler=new HttpClientHandler{AllowAutoRedirect=false})using(var client=new HttpClient(handler)){
-    timeout.CancelAfter(asset?180000:5000);client.Timeout=Timeout.InfiniteTimeSpan;client.DefaultRequestHeaders.UserAgent.ParseAdd("FormatFlow/2.2.0");client.DefaultRequestHeaders.CacheControl=new System.Net.Http.Headers.CacheControlHeaderValue{NoCache=true};var uri=new Uri(address);if(!asset){var fresh=new UriBuilder(uri);fresh.Query=(fresh.Query.Length>1?fresh.Query.Substring(1)+"&":"")+"ff_check="+DateTime.UtcNow.Ticks;uri=fresh.Uri;}
+    timeout.CancelAfter(asset?180000:30000);client.Timeout=Timeout.InfiniteTimeSpan;client.DefaultRequestHeaders.UserAgent.ParseAdd("FormatFlow/2.2.0");client.DefaultRequestHeaders.CacheControl=new System.Net.Http.Headers.CacheControlHeaderValue{NoCache=true};var uri=new Uri(address);if(!asset){var fresh=new UriBuilder(uri);fresh.Query=(fresh.Query.Length>1?fresh.Query.Substring(1)+"&":"")+"ff_check="+DateTime.UtcNow.Ticks;uri=fresh.Uri;}
     for(int redirect=0;redirect<7;redirect++){
      ChannelRules.ValidateUrl(uri,asset);using(var response=await client.GetAsync(uri,HttpCompletionOption.ResponseHeadersRead,timeout.Token).ConfigureAwait(false)){
       if((int)response.StatusCode>=300&&(int)response.StatusCode<400){if(response.Headers.Location==null)throw new InvalidDataException("Invalid redirect.");uri=new Uri(uri,response.Headers.Location);continue;}

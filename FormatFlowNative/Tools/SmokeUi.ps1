@@ -36,3 +36,9 @@ Set-TestFeed '{"schema":1,"ads":[{"title":"Top again","placement":"top"}]}'
 if ($top.Visibility -ne [System.Windows.Visibility]::Visible -or $lower.Visibility -ne [System.Windows.Visibility]::Collapsed) { throw 'Top banner must be restorable independently' }
 $window.Close()
 Write-Output 'Windows WPF construction and two-banner structure passed.'
+
+# Exercise the production feed reader against the live service.
+$channel = [Activator]::CreateInstance($assembly.GetType('FormatFlow.ChannelService', $true))
+$feedResult = $channel.CheckAsync([Threading.CancellationToken]::None, $false, $false).GetAwaiter().GetResult()
+if ($null -eq $feedResult -or $feedResult.State.schema -ne 1 -or $feedResult.State.revision -lt 1) { throw 'Live publisher feed check failed' }
+Write-Output ("Live publisher feed revision: " + $feedResult.State.revision)
