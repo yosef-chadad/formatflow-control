@@ -51,7 +51,7 @@ if ($null -eq $feedResult -or $feedResult.State.schema -ne 1 -or $feedResult.Sta
 Write-Output ("Live publisher feed revision: " + $feedResult.State.revision)
 
 # Exercise the compatibility reader even if CI's native HTTP connection works.
-$compatibilityPath = Join-Path ([IO.Path]::GetTempPath()) ([Guid]::NewGuid().ToString() + '.json')
+$compatibilityPath = [IO.Path]::Combine([IO.Path]::GetTempPath(), [Guid]::NewGuid().ToString() + '.json')
 try {
   $reader = $channel.GetType().GetMethod('WindowsFeedAsync', [Reflection.BindingFlags]'Static,NonPublic')
   $readTask = $reader.Invoke($null, @('https://raw.githubusercontent.com/yosef-chadad/formatflow-control/main/feed.json', $compatibilityPath, [long]262144, [Threading.CancellationToken]::None))
