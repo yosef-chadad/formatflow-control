@@ -6,6 +6,7 @@ on:
     paths:
       - 'FormatFlowNative/**'
       - 'build-assets.py'
+      - '.github/workflows/release.yml'
 permissions:
   contents: write
 concurrency:
@@ -17,6 +18,28 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+      - name: Select the next release version
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          $headers = @{ Authorization = "Bearer $env:GITHUB_TOKEN"; Accept = 'application/vnd.github+json'; 'User-Agent' = 'FormatFlow-release' }
+          $file = Invoke-RestMethod -Headers $headers -Uri 'https://api.github.com/repos/yosef-chadad/formatflow-control/contents/feed.json?ref=main'
+          $feed = [System.Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($file.content)) | ConvertFrom-Json
+          $path = 'FormatFlowNative/FormatFlow.csproj'
+          $projectText = Get-Content -Raw $path
+          [xml]$project = $projectText
+          $declared = [string]$project.Project.PropertyGroup.Version
+          $current = [string]$feed.latest.version
+          if ($declared -notmatch '^\d+\.\d+\.\d+$' -or $current -notmatch '^\d+\.\d+\.\d+$') { throw 'Expected three-part release versions' }
+          $next = [version]$declared
+          $published = [version]$current
+          if ($next -le $published) { $next = [version]::new($published.Major, $published.Minor, $published.Build + 1) }
+          $replacement = '<Version>' + $next.ToString() + '</Version>'
+          $updated = ([regex]::new('<Version>\d+\.\d+\.\d+</Version>')).Replace($projectText, $replacement, 1)
+          if ($updated -notlike "*$replacement*") { throw 'Unable to set release version' }
+          Set-Content -Path $path -Value $updated -Encoding utf8 -NoNewline
+          Write-Output "Building release $next"
       - name: Restore embedded resources
         run: python build-assets.py
       - name: Build Windows executable
