@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "revision": 17,
+  "revision": 18,
   "policy": {
     "enabled": true,
     "message": "התוכנה מושבתת זמנית מטעם המפרסם. אפשר לבדוק שוב בהמשך."
@@ -10,13 +10,7 @@
     "subtitle": "בחר-המר-הורד",
     "accent": "#B2A0FF"
   },
-  "ads": [
-    {
-      "image": "https://raw.githubusercontent.com/yosef-chadad/formatflow-control/main/FormatFlow%20luminous%20Hebrew%20banner.png",
-      "link": "",
-      "placement": "belowSearch"
-    }
-  ],
+  "ads": [],
   "latest": {
     "version": "2.4.7",
     "url": "https://github.com/yosef-chadad/formatflow-control/releases/download/v2.4.7/FormatFlow.exe",
