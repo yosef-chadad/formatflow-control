@@ -1,0 +1,26 @@
+name: Check owner login server
+on:
+  push:
+    paths:
+      - 'owner-server/**'
+      - '.github/workflows/owner-login.yml'
+  pull_request:
+    paths:
+      - 'owner-server/**'
+      - '.github/workflows/owner-login.yml'
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: owner-server/package-lock.json
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+        working-directory: owner-server
+      - run: npm test
+        working-directory: owner-server
