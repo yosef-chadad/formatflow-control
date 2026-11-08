@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "revision": 20,
+  "revision": 21,
   "policy": {
     "enabled": true,
     "message": "התוכנה מושבתת זמנית מטעם המפרסם. אפשר לבדוק שוב בהמשך."
